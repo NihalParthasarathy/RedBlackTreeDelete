@@ -10,7 +10,7 @@
 using namespace std;
 
 void manualAdd(Node* &root);
-void recurciveAdd(Node* curr, int value);
+void recurciveAdd(Node* &root, Node* curr, int value);
 bool search(Node* curr, int num, Node* &newptr);
 void display(Node* curr, int depth);
 void addFile(Node* &root);
@@ -74,7 +74,8 @@ void manualAdd(Node* &root) {
     }
   }
   else if (root != NULL) {
-    recurciveAdd(root, num);
+    recurciveAdd(root, root, num);
+    check(root, root->left, num);
   }
 }
 
@@ -104,27 +105,27 @@ void addFile(Node* &root) {//Adds from a file
       root->parent = NULL;
     }
     else if (root != NULL) {
-      recurciveAdd(root, numput);
+      recurciveAdd(root, root, numput);
     }
   }
 }
 
-void recurciveAdd(Node* curr, int value) {
+void recurciveAdd(Node* &root, Node* curr, int value) {
   if (curr->data >= value && curr->getLeft() == NULL) {
     curr->setLeft(new Node(value));
     curr->getLeft()->parent = curr;
-    check(root, curr, value);
+    //check(root, curr->getLeft(), value);
   }
   else if (curr->data < value && curr->getRight() == NULL) {
     curr->setRight(new Node(value));
     curr->getRight()->parent = curr;
-    check(root, curr, value);
+    //check(root, curr->getRight(), value);
   }
   else if (curr->data >= value) {
-    recurciveAdd(curr->getLeft(), value);
+    recurciveAdd(root, curr->getLeft(), value);
   }
   else if (curr->data < value) {
-    recurciveAdd(curr->getRight(), value);
+    recurciveAdd(root, curr->getRight(), value);
   }
 }
 
@@ -149,7 +150,7 @@ void check(Node* &root, Node* curr, int value) {
   if (curr->color == true && curr == root) {
     root->color = false;
   }
-  else if (curr->parent->color == true) {
+  else if (curr->parent != NULL && curr->parent->color == false) {
     return;
   }
   else if (parent->color == true && uncle->color == true) {
