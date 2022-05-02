@@ -9,11 +9,11 @@
 
 using namespace std;
 
-void manualAdd(Node* &root);
-void recurciveAdd(Node* &root, Node* curr, int value);
+void manualAdd(Node* &root, Node* &newptr);
+void recurciveAdd(Node* &root, Node* curr, int value, Node* &newptr);
 bool search(Node* curr, int num, Node* &newptr);
 void display(Node* curr, int depth);
-void addFile(Node* &root);
+void addFile(Node* &root, Node* &newptr);
 void remove(Node* root, int num, Node* newptr);
 void check(Node* &root, Node* curr, int value);
 
@@ -29,10 +29,10 @@ r quit(QUIT)" << endl;
     char input[10];
     cin >> input;
     if (strcmp(input, "ADD") == 0) {//Calls the add function
-      addFile(root);
+      addFile(root, newptr);
     }
     else if (strcmp(input, "TYPE") == 0) {//Calls type function
-      manualAdd(root);
+      manualAdd(root, newptr);
     }
     else if (strcmp(input, "DISPLAY") == 0) {//Calls display function
       display(root, 0);
@@ -61,7 +61,7 @@ r quit(QUIT)" << endl;
   }
 }
 
-void manualAdd(Node* &root) {
+void manualAdd(Node* &root, Node* &newptr) {
   cout << "enter a number between 1-999" << endl;
   int num;
   cin >> num;
@@ -74,12 +74,13 @@ void manualAdd(Node* &root) {
     }
   }
   else if (root != NULL) {
-    recurciveAdd(root, root, num);
-    check(root, root->left, num);
+    recurciveAdd(root, root, num, newptr);
+    cout << newptr->data << endl;
+    //check(root, newptr, num);
   }
 }
 
-void addFile(Node* &root) {//Adds from a file
+void addFile(Node* &root, Node* &newptr) {//Adds from a file
   cout << "how many numbers to add" << endl;
   int input;
   cin >> input;
@@ -105,66 +106,91 @@ void addFile(Node* &root) {//Adds from a file
       root->parent = NULL;
     }
     else if (root != NULL) {
-      recurciveAdd(root, root, numput);
+      recurciveAdd(root, root, numput, newptr);
     }
   }
 }
 
-void recurciveAdd(Node* &root, Node* curr, int value) {
+void recurciveAdd(Node* &root, Node* curr, int value, Node* &newptr) {
   if (curr->data >= value && curr->getLeft() == NULL) {
     curr->setLeft(new Node(value));
     curr->getLeft()->parent = curr;
-    //check(root, curr->getLeft(), value);
+    newptr = curr;
+    cout << curr->getLeft()->data << endl;
+    check(root, curr->getLeft(), value);
   }
   else if (curr->data < value && curr->getRight() == NULL) {
     curr->setRight(new Node(value));
     curr->getRight()->parent = curr;
-    //check(root, curr->getRight(), value);
+    newptr = curr;
+    cout << curr->getRight()->data << endl;
+    check(root, curr->getRight(), value);
   }
   else if (curr->data >= value) {
-    recurciveAdd(root, curr->getLeft(), value);
+    recurciveAdd(root, curr->getLeft(), value, newptr);
   }
   else if (curr->data < value) {
-    recurciveAdd(root, curr->getRight(), value);
+    recurciveAdd(root, curr->getRight(), value, newptr);
   }
 }
 
 void check(Node* &root, Node* curr, int value) {
+  cout << "hih" << endl;
   Node* parent;
   Node* grandparent;
   Node* uncle;
   if (curr->parent != NULL) {
+    cout << "works" << endl;
     parent = curr->parent;
     if (parent->parent != NULL) {
-      grandparent = parent->parent;
-    }
-    if (parent->getLeft() == curr) {
-    uncle = grandparent->getRight();
-    }
-    else if (parent->getRight() == curr) {
-      uncle = grandparent->getLeft();
+      cout << "granparent works" << endl;
+      grandparent = parent->parent;   
+      if (grandparent->getLeft() == parent) {
+	uncle = grandparent->getRight();
+	cout << "uncle " << uncle->data << endl;
+	uncle->color = false;
+      }
+      else if (grandparent->getRight() == parent) {
+	uncle = grandparent->getLeft();
+	cout << "uncle " << uncle->data << endl;
+	uncle->color = false;
+      }
     } 
   }
   
   
   if (curr->color == true && curr == root) {
     root->color = false;
+    return;
   }
   else if (curr->parent != NULL && curr->parent->color == false) {
+    cout << "return" << endl;
     return;
   }
   else if (parent->color == true && uncle->color == true) {
     parent->color = false;
     uncle->color = false;
     grandparent->color = true;
+    cout << "3rd function" << endl;
     check(root, grandparent, value);
   }
-  else if (uncle->color == false && parent == grandparent->getRight()) {
-
+  else if (uncle->color == false && parent == grandparent->getRight() && curr == parent->getLeft()) {
+    grandparent->setRight(curr);
+    curr->parent = grandparent;
+    Node* temp = curr->getRight();
+    curr->setRight(parent);
+    parent->parent = curr;
+    parent->setLeft(temp);
   }
-  else if (uncle->color == false && parent == grandparent->getLeft()) {
-    
+  else if (uncle->color == false && parent == grandparent->getLeft() && curr == parent->getRight()) {
+    grandparent->setLeft(curr);
+    curr->parent = grandparent;
+    Node* temp = curr->getLeft();
+    curr->setLeft(parent);
+    parent->parent = curr;
+    parent->setRight(temp);
   }
+  cout << "end" << endl;
 }
 
 bool search(Node* curr, int num, Node* &newptr) {
