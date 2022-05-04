@@ -136,9 +136,9 @@ void recurciveAdd(Node* &root, Node* curr, int value, Node* &newptr) {
 
 void check(Node* &root, Node* curr, int value) {
   cout << "hih" << endl;
-  Node* parent;
-  Node* grandparent;
-  Node* uncle;
+  Node* parent = NULL;
+  Node* grandparent = NULL;
+  Node* uncle = NULL;
   if (curr->parent != NULL) {
     cout << "works" << endl;
     parent = curr->parent;
@@ -147,13 +147,13 @@ void check(Node* &root, Node* curr, int value) {
       grandparent = parent->parent;   
       if (grandparent->getLeft() == parent) {
 	uncle = grandparent->getRight();
-	cout << "uncle " << uncle->data << endl;
-	uncle->color = false;
+	//cout << "uncle " << uncle->data << endl;
+	//uncle->color = false;
       }
       else if (grandparent->getRight() == parent) {
 	uncle = grandparent->getLeft();
-	cout << "uncle " << uncle->data << endl;
-	uncle->color = false;
+	//cout << "uncle " << uncle->data << endl;
+	//uncle->color = false;
       }
     } 
   }
@@ -167,29 +167,83 @@ void check(Node* &root, Node* curr, int value) {
     cout << "return" << endl;
     return;
   }
-  else if (parent->color == true && uncle->color == true) {
-    parent->color = false;
-    uncle->color = false;
-    grandparent->color = true;
-    cout << "3rd function" << endl;
-    check(root, grandparent, value);
+  if (uncle != NULL) {
+    if (parent->color == true && uncle->color == true) {
+      parent->color = false;
+      uncle->color = false;
+      grandparent->color = true;
+      cout << "3rd function" << endl;
+      check(root, grandparent, value);
+    }
   }
-  else if (uncle->color == false && parent == grandparent->getRight() && curr == parent->getLeft()) {
-    grandparent->setRight(curr);
-    curr->parent = grandparent;
-    Node* temp = curr->getRight();
-    curr->setRight(parent);
-    parent->parent = curr;
-    parent->setLeft(temp);
+  else if (uncle == NULL || uncle->color == false) {
+    //Case 4
+    if (parent == grandparent->getRight() && curr == parent->getLeft()) {
+      grandparent->setRight(curr);
+      curr->parent = grandparent;
+      Node* temp = curr->getRight();
+      curr->setRight(parent);
+      parent->parent = curr;
+      parent->setLeft(temp);
+      parent = curr;
+      curr = parent->getRight();
+      cout << "fourth func works" << endl;
+    }
+  
+    else if (parent == grandparent->getLeft() && curr == parent->getRight()) {
+      grandparent->setLeft(curr);
+      curr->parent = grandparent;
+      Node* temp = curr->getLeft();
+      curr->setLeft(parent);
+      parent->parent = curr;
+      parent->setRight(temp);
+      parent = curr;
+      curr = parent->getLeft();
+      cout << "fourth func works" << endl;
+    }
+    //cout << "parent:" << parent->data << endl;
+    //cout << "Current: " << curr->data << endl;
+
+    if (parent->color == true && curr->color == true) {
+      Node* greatgrandparent = NULL;
+      if (grandparent->getLeft() == parent && parent->getLeft() == curr) {
+	Node* temp = parent->getRight();
+	parent->setRight(grandparent);
+	if (grandparent != root) {
+	  greatgrandparent = grandparent->parent;
+	  parent->parent = greatgrandparent;
+	  greatgrandparent->setLeft(parent);
+	}
+	else {
+	  parent->parent = NULL;
+	  root = parent;
+	}
+	grandparent->parent = parent;
+	grandparent->setLeft(temp);
+	parent->color = false;
+	grandparent->color = true;
+	cout << "fifth works" << endl;
+      }
+      else if (grandparent->getRight() == parent && parent->getRight() == curr) {
+	Node* temp = parent->getLeft();
+        parent->setLeft(grandparent);
+        if (grandparent != root) {
+          greatgrandparent = grandparent->parent;
+          parent->parent = greatgrandparent;
+        }
+        else {
+          parent->parent = NULL;
+          root = parent;
+        }
+        grandparent->parent = parent;
+        grandparent->setRight(temp);
+        parent->color = false;
+        grandparent->color = true;
+        cout << "fifth works" << endl;
+      }
+    }
   }
-  else if (uncle->color == false && parent == grandparent->getLeft() && curr == parent->getRight()) {
-    grandparent->setLeft(curr);
-    curr->parent = grandparent;
-    Node* temp = curr->getLeft();
-    curr->setLeft(parent);
-    parent->parent = curr;
-    parent->setRight(temp);
-  }
+  
   cout << "end" << endl;
 }
 
