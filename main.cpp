@@ -90,13 +90,15 @@ void addFile(Node* &root, Node* &newptr) {//Adds from a file
     char tempString[10];
     int count = 1;
     int numput;
-    int randomnum = (rand() % 50) + 1;
+    int number = 0;
+    //int randomnum = (rand() % 50) + 1;
     fstream myfile("numberFile.txt");//Opens file
 
     while (myfile.getline(input,10, ' ')) {
-      if (count == randomnum) {
+      if (count == number) {
         strcpy(tempString, input);
         count++;
+	number++;
       }
       count++;
     }
@@ -104,6 +106,7 @@ void addFile(Node* &root, Node* &newptr) {//Adds from a file
     if (root == NULL) {
       root = new Node(numput);
       root->parent = NULL;
+      check(root, root, numput);
     }
     else if (root != NULL) {
       recurciveAdd(root, root, numput, newptr);
@@ -204,6 +207,7 @@ void check(Node* &root, Node* curr, int value) {
     //cout << "parent:" << parent->data << endl;
     //cout << "Current: " << curr->data << endl;
 
+    //Case 5
     if (parent->color == true && curr->color == true) {
       Node* greatgrandparent = NULL;
       if (grandparent->getLeft() == parent && parent->getLeft() == curr) {
