@@ -13,12 +13,12 @@ void manualAdd(Node* &root, Node* &newptr);
 void recurciveAdd(Node* &root, Node* curr, int value, Node* &newptr);
 bool search(Node* curr, int num, Node* &newptr);
 void display(Node* curr, int depth);
-void addFile(Node* &root, Node* &newptr);
+void addFile(Node* &root, Node* &newptr, int &count);
 void remove(Node* root, int num, Node* newptr);
 void check(Node* &root, Node* curr, int value);
 
 int main() {
-  srand(time(0));
+  int count = 1;
   cout << "Binary Search Tree" << endl;
   Node* root = NULL;
   bool playing = true;
@@ -29,7 +29,7 @@ r quit(QUIT)" << endl;
     char input[10];
     cin >> input;
     if (strcmp(input, "ADD") == 0) {//Calls the add function
-      addFile(root, newptr);
+      addFile(root, newptr, count);
     }
     else if (strcmp(input, "TYPE") == 0) {//Calls type function
       manualAdd(root, newptr);
@@ -80,12 +80,12 @@ void manualAdd(Node* &root, Node* &newptr) {
   }
 }
 
-void addFile(Node* &root, Node* &newptr) {//Adds from a file
+void addFile(Node* &root, Node* &newptr, int &count) {//Adds from a file
   cout << "how many numbers to add" << endl;
-  int input;
-  cin >> input;
+  int ninput;
+  cin >> ninput;
 
-  for (int i = 0; i < input; i++) {
+  /*for (int i = 0; i < input; i++) {
     char input[10];
     char tempString[10];
     int count = 1;
@@ -101,8 +101,26 @@ void addFile(Node* &root, Node* &newptr) {//Adds from a file
 	number++;
       }
       count++;
+      }*/
+  for(int i = 0; i < ninput; i ++){//Create how many numbers the user wants
+    fstream file("numberFile.txt");//Import the number file
+    char input[100];
+    int num = 0;
+    char temp[100];
+    if(count > 50){
+      count = 1;
     }
-    numput = atoi(tempString);//Changes from string to int
+    
+    while (file.getline(input, 100, ' ')) {
+      if (count == num) {
+	strcpy(temp,input);
+	num++;
+      }
+      num++;
+    }
+    int numput = atoi(temp);//Changes from string to int
+    count++;
+    cout << "number:" << numput << endl; 
     if (root == NULL) {
       root = new Node(numput);
       root->parent = NULL;
@@ -150,43 +168,54 @@ void check(Node* &root, Node* curr, int value) {
       grandparent = parent->parent;   
       if (grandparent->getLeft() == parent) {
 	uncle = grandparent->getRight();
-	//cout << "uncle " << uncle->data << endl;
-	//uncle->color = false;
+	if (uncle != NULL) {
+	  cout << "uncle " << uncle->data << endl;
+	  if (uncle->color == false) {
+	    cout << "test 3" << endl;
+	  }
+	}//uncle->color = false;
       }
       else if (grandparent->getRight() == parent) {
 	uncle = grandparent->getLeft();
-	//cout << "uncle " << uncle->data << endl;
-	//uncle->color = false;
+	if (uncle != NULL) {
+	  cout << "uncle " << uncle->data << endl;
+	  if (uncle->color == false) {
+            cout << "test 3" << endl;
+          }
+	}//uncle->color = false;
       }
     } 
   }
-  
-  
+  cout << "hi there" << endl;
   if (curr->color == true && curr == root) {
     root->color = false;
+    cout << "case 1" << endl;
     return;
   }
   else if (curr->parent != NULL && curr->parent->color == false) {
     cout << "return" << endl;
     return;
   }
-  if (uncle != NULL) {
-    if (parent->color == true && uncle->color == true) {
-      parent->color = false;
-      uncle->color = false;
-      grandparent->color = true;
-      cout << "3rd function" << endl;
-      check(root, grandparent, value);
-    }
+  
+  else if (uncle != NULL && parent->color == true && uncle->color == true) {
+    parent->color = false;
+    uncle->color = false;
+    grandparent->color = true;
+    cout << "3rd function" << endl;
+    check(root, grandparent, value);
   }
   else if (uncle == NULL || uncle->color == false) {
     //Case 4
+    cout << "test case 2" << endl;
     if (parent == grandparent->getRight() && curr == parent->getLeft()) {
       grandparent->setRight(curr);
       curr->parent = grandparent;
       Node* temp = curr->getRight();
       curr->setRight(parent);
       parent->parent = curr;
+      if (temp != NULL) {
+	temp->parent = parent;
+      }
       parent->setLeft(temp);
       parent = curr;
       curr = parent->getRight();
@@ -199,6 +228,9 @@ void check(Node* &root, Node* curr, int value) {
       Node* temp = curr->getLeft();
       curr->setLeft(parent);
       parent->parent = curr;
+      if (temp != NULL) {
+        temp->parent = parent;
+      }
       parent->setRight(temp);
       parent = curr;
       curr = parent->getLeft();
@@ -216,13 +248,21 @@ void check(Node* &root, Node* curr, int value) {
 	if (grandparent != root) {
 	  greatgrandparent = grandparent->parent;
 	  parent->parent = greatgrandparent;
-	  greatgrandparent->setLeft(parent);
+	  if (grandparent == greatgrandparent->getLeft()) {
+	    greatgrandparent->setLeft(parent);
+	  }
+	  else {
+	    greatgrandparent->setRight(parent);
+	  }
 	}
 	else {
 	  parent->parent = NULL;
 	  root = parent;
 	}
 	grandparent->parent = parent;
+	if (temp != NULL) {
+	  temp->parent = grandparent;
+	}
 	grandparent->setLeft(temp);
 	parent->color = false;
 	grandparent->color = true;
@@ -234,14 +274,23 @@ void check(Node* &root, Node* curr, int value) {
         if (grandparent != root) {
           greatgrandparent = grandparent->parent;
           parent->parent = greatgrandparent;
+	  if (grandparent == greatgrandparent->getLeft()) {
+            greatgrandparent->setLeft(parent);
+          }
+          else {
+            greatgrandparent->setRight(parent);
+          }
         }
         else {
           parent->parent = NULL;
           root = parent;
         }
         grandparent->parent = parent;
+	if (temp != NULL) {
+          temp->parent = grandparent;
+        }
         grandparent->setRight(temp);
-        parent->color = false;
+	parent->color = false;
         grandparent->color = true;
         cout << "fifth works" << endl;
       }
@@ -279,10 +328,20 @@ void display(Node* curr, int depth) {//Displays the heap using tabs
     cout << "\t";
   }
   if (curr->color == true) {
-    cout << curr->data << "  RED" << endl;
+    if (curr->parent != NULL) {
+      cout << curr->data << "  RED" << " Parent: " << curr->parent->data << endl;
+    }
+    else {
+      cout << curr->data << "  RED" << " Parent: NULL" << endl;
+    }
   }
   else if (curr->color == false) {
-    cout << curr->data << "  BLACK" << endl;
+    if (curr->parent != NULL) {
+      cout << curr->data << "  BLACK" << " Parent: " << curr->parent->data << endl;
+    }
+    else {
+      cout << curr->data << "  BLACK" << " Parent: NULL" << endl;
+    }
   }
   //cout << curr->data << endl;//Prints out the number
   if (curr->left != NULL) {
