@@ -1,3 +1,7 @@
+//Nihal Parthasrathy
+//5/7/2022
+//This code makes a red black tree to sort numbers in a balanced form. It adds the numbers form manual adding or from a file and also displays i\
+t
 #ifndef NODE_H
 #define NODE_H
 #include <iostream>

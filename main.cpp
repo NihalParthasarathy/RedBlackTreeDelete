@@ -1,3 +1,8 @@
+//Nihal Parthasrathy
+//5/7/2022
+//This code makes a red black tree to sort numbers in a balanced form. It adds the numbers form manual adding or from a file and also displays it
+
+//Inclusions
 #include "node.h"
 #include <fstream>
 #include <math.h>
@@ -9,25 +14,28 @@
 
 using namespace std;
 
+//Function Prototypes
 void manualAdd(Node* &root, Node* &newptr);
 void recurciveAdd(Node* &root, Node* curr, int value, Node* &newptr);
 bool search(Node* curr, int num, Node* &newptr);
 void display(Node* curr, int depth);
 void addFile(Node* &root, Node* &newptr, int &count);
 void remove(Node* root, int num, Node* newptr);
-void check(Node* &root, Node* curr, int value);
+void check(Node* &root, Node* curr);
 
 int main() {
   int count = 1;
-  cout << "Binary Search Tree" << endl;
+  cout << "Red Black Tree" << endl;
   Node* root = NULL;
   bool playing = true;
   Node* newptr = NULL;
+  
   while (playing == true) {//While loop
     cout << "would you like to add from a file(ADD), Manualy add(TYPE), search(SEARCH), display(DISPLAY), remove from heap(REMOVE), o\
 r quit(QUIT)" << endl;
     char input[10];
     cin >> input;
+    
     if (strcmp(input, "ADD") == 0) {//Calls the add function
       addFile(root, newptr, count);
     }
@@ -37,8 +45,8 @@ r quit(QUIT)" << endl;
     else if (strcmp(input, "DISPLAY") == 0) {//Calls display function
       display(root, 0);
     }
-    else if (strcmp(input, "SEARCH") == 0) {//Calls the print function
-      cout << "What number would you liek to search" << endl;
+    else if (strcmp(input, "SEARCH") == 0) {//Calls the search function
+      cout << "What number would you like to search" << endl;
       int input2;
       cin >> input2;
       bool a = search(root, input2, newptr);
@@ -50,10 +58,10 @@ r quit(QUIT)" << endl;
       }
     }
     else if (strcmp(input, "REMOVE") == 0) {//Calls remove function
-      cout << "what number would you like to remove" << endl;
+      /*cout << "what number would you like to remove" << endl;
       int input3;
       cin >> input3;
-      remove(root, input3, newptr);
+      remove(root, input3, newptr);*/
     }
     else if (strcmp(input, "QUIT") == 0) {//Returns false
       playing = false;//Exits while Loop stopping game
@@ -61,22 +69,17 @@ r quit(QUIT)" << endl;
   }
 }
 
-void manualAdd(Node* &root, Node* &newptr) {
+void manualAdd(Node* &root, Node* &newptr) {//Asks for number and adds it
   cout << "enter a number between 1-999" << endl;
   int num;
   cin >> num;
-  if (root == NULL) {
+  if (root == NULL) {//If root is Null
     root = new Node(num);
     root->parent = NULL;
-    check(root, root, num);
-    if (root->color == false) {
-      cout << "black" << endl;
-    }
+    check(root, root);
   }
-  else if (root != NULL) {
+  else if (root != NULL) {//If it is not a root
     recurciveAdd(root, root, num, newptr);
-    cout << newptr->data << endl;
-    //check(root, newptr, num);
   }
 }
 
@@ -85,23 +88,6 @@ void addFile(Node* &root, Node* &newptr, int &count) {//Adds from a file
   int ninput;
   cin >> ninput;
 
-  /*for (int i = 0; i < input; i++) {
-    char input[10];
-    char tempString[10];
-    int count = 1;
-    int numput;
-    int number = 0;
-    //int randomnum = (rand() % 50) + 1;
-    fstream myfile("numberFile.txt");//Opens file
-
-    while (myfile.getline(input,10, ' ')) {
-      if (count == number) {
-        strcpy(tempString, input);
-        count++;
-	number++;
-      }
-      count++;
-      }*/
   for(int i = 0; i < ninput; i ++){//Create how many numbers the user wants
     fstream file("numberFile.txt");//Import the number file
     char input[100];
@@ -119,95 +105,72 @@ void addFile(Node* &root, Node* &newptr, int &count) {//Adds from a file
       num++;
     }
     int numput = atoi(temp);//Changes from string to int
-    count++;
-    cout << "number:" << numput << endl; 
-    if (root == NULL) {
+    count++; 
+    if (root == NULL) {//If root is Null
       root = new Node(numput);
       root->parent = NULL;
-      check(root, root, numput);
+      check(root, root);
     }
-    else if (root != NULL) {
+    else if (root != NULL) {//If it is not a root
       recurciveAdd(root, root, numput, newptr);
     }
   }
 }
 
-void recurciveAdd(Node* &root, Node* curr, int value, Node* &newptr) {
+void recurciveAdd(Node* &root, Node* curr, int value, Node* &newptr) {//Adds recurcivly to the tree
   if (curr->data >= value && curr->getLeft() == NULL) {
     curr->setLeft(new Node(value));
     curr->getLeft()->parent = curr;
     newptr = curr;
-    cout << curr->getLeft()->data << endl;
-    check(root, curr->getLeft(), value);
+    check(root, curr->getLeft());//Check function
   }
   else if (curr->data < value && curr->getRight() == NULL) {
     curr->setRight(new Node(value));
     curr->getRight()->parent = curr;
     newptr = curr;
-    cout << curr->getRight()->data << endl;
-    check(root, curr->getRight(), value);
+    check(root, curr->getRight());//check function
   }
-  else if (curr->data >= value) {
+  else if (curr->data >= value) {//Recurcive Call
     recurciveAdd(root, curr->getLeft(), value, newptr);
   }
-  else if (curr->data < value) {
+  else if (curr->data < value) {//Recurcive Call
     recurciveAdd(root, curr->getRight(), value, newptr);
   }
 }
 
-void check(Node* &root, Node* curr, int value) {
-  cout << "hih" << endl;
+void check(Node* &root, Node* curr) {
   Node* parent = NULL;
   Node* grandparent = NULL;
   Node* uncle = NULL;
+
+  //Makes the Node pointers if they exit in the tree
   if (curr->parent != NULL) {
-    cout << "works" << endl;
     parent = curr->parent;
     if (parent->parent != NULL) {
-      cout << "granparent works" << endl;
       grandparent = parent->parent;   
       if (grandparent->getLeft() == parent) {
 	uncle = grandparent->getRight();
-	if (uncle != NULL) {
-	  cout << "uncle " << uncle->data << endl;
-	  if (uncle->color == false) {
-	    cout << "test 3" << endl;
-	  }
-	}//uncle->color = false;
       }
       else if (grandparent->getRight() == parent) {
 	uncle = grandparent->getLeft();
-	if (uncle != NULL) {
-	  cout << "uncle " << uncle->data << endl;
-	  if (uncle->color == false) {
-            cout << "test 3" << endl;
-          }
-	}//uncle->color = false;
       }
     } 
   }
-  cout << "hi there" << endl;
-  if (curr->color == true && curr == root) {
+  if (curr->color == true && curr == root) {//Case 1
     root->color = false;
-    cout << "case 1" << endl;
     return;
   }
-  else if (curr->parent != NULL && curr->parent->color == false) {
-    cout << "return" << endl;
+  else if (curr->parent != NULL && curr->parent->color == false) {//Case 2
     return;
   }
-  
-  else if (uncle != NULL && parent->color == true && uncle->color == true) {
+  else if (uncle != NULL && parent->color == true && uncle->color == true) {//Case 3
     parent->color = false;
     uncle->color = false;
     grandparent->color = true;
-    cout << "3rd function" << endl;
-    check(root, grandparent, value);
+    check(root, grandparent);//Recurcive Call on Grandparent
   }
-  else if (uncle == NULL || uncle->color == false) {
-    //Case 4
-    cout << "test case 2" << endl;
-    if (parent == grandparent->getRight() && curr == parent->getLeft()) {
+  else if (uncle == NULL || uncle->color == false) {//If the uncle is black
+    if (parent == grandparent->getRight() && curr == parent->getLeft()) {//Case 4
       grandparent->setRight(curr);
       curr->parent = grandparent;
       Node* temp = curr->getRight();
@@ -219,10 +182,8 @@ void check(Node* &root, Node* curr, int value) {
       parent->setLeft(temp);
       parent = curr;
       curr = parent->getRight();
-      cout << "fourth func works" << endl;
     }
-  
-    else if (parent == grandparent->getLeft() && curr == parent->getRight()) {
+    else if (parent == grandparent->getLeft() && curr == parent->getRight()) {//Case 4
       grandparent->setLeft(curr);
       curr->parent = grandparent;
       Node* temp = curr->getLeft();
@@ -234,15 +195,10 @@ void check(Node* &root, Node* curr, int value) {
       parent->setRight(temp);
       parent = curr;
       curr = parent->getLeft();
-      cout << "fourth func works" << endl;
     }
-    //cout << "parent:" << parent->data << endl;
-    //cout << "Current: " << curr->data << endl;
-
-    //Case 5
-    if (parent->color == true && curr->color == true) {
+    if (parent->color == true && curr->color == true) {//Case 5
       Node* greatgrandparent = NULL;
-      if (grandparent->getLeft() == parent && parent->getLeft() == curr) {
+      if (grandparent->getLeft() == parent && parent->getLeft() == curr) {//If parent is a left child and curr is a left child
 	Node* temp = parent->getRight();
 	parent->setRight(grandparent);
 	if (grandparent != root) {
@@ -266,9 +222,8 @@ void check(Node* &root, Node* curr, int value) {
 	grandparent->setLeft(temp);
 	parent->color = false;
 	grandparent->color = true;
-	cout << "fifth works" << endl;
       }
-      else if (grandparent->getRight() == parent && parent->getRight() == curr) {
+      else if (grandparent->getRight() == parent && parent->getRight() == curr) {//If parent is a right child and curr is a right child
 	Node* temp = parent->getLeft();
         parent->setLeft(grandparent);
         if (grandparent != root) {
@@ -292,15 +247,12 @@ void check(Node* &root, Node* curr, int value) {
         grandparent->setRight(temp);
 	parent->color = false;
         grandparent->color = true;
-        cout << "fifth works" << endl;
       }
     }
   }
-  
-  cout << "end" << endl;
 }
 
-bool search(Node* curr, int num, Node* &newptr) {
+bool search(Node* curr, int num, Node* &newptr) {//Search Function
   bool b = false;
   if (curr->data == num) {
     newptr = curr;
@@ -343,13 +295,13 @@ void display(Node* curr, int depth) {//Displays the heap using tabs
       cout << curr->data << "  BLACK" << " Parent: NULL" << endl;
     }
   }
-  //cout << curr->data << endl;//Prints out the number
   if (curr->left != NULL) {
     display(curr->left, depth + 1);//Recurcive call
   }
 }
 
-void remove(Node* curr, int num, Node* newptr) {
+//Remove function from binary tree
+/*void remove(Node* curr, int num, Node* newptr) {
   if (search(curr, num, newptr) == true) {
     Node* temp = newptr;
     cout << temp->data << endl;
@@ -390,4 +342,4 @@ void remove(Node* curr, int num, Node* newptr) {
     }
 
   }
-}
+  }*/
