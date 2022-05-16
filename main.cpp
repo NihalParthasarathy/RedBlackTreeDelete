@@ -20,8 +20,9 @@ void recurciveAdd(Node* &root, Node* curr, int value, Node* &newptr);
 bool search(Node* curr, int num, Node* &newptr);
 void display(Node* curr, int depth);
 void addFile(Node* &root, Node* &newptr, int &count);
-void remove(Node* root, int num, Node* newptr);
+void remove(Node* &root, Node* curr, int num, Node* newptr);
 void check(Node* &root, Node* curr);
+void checkDelete(Node* &root, Node* curr);
 
 int main() {
   int count = 1;
@@ -58,10 +59,10 @@ r quit(QUIT)" << endl;
       }
     }
     else if (strcmp(input, "REMOVE") == 0) {//Calls remove function
-      /*cout << "what number would you like to remove" << endl;
+      cout << "what number would you like to remove" << endl;
       int input3;
       cin >> input3;
-      remove(root, input3, newptr);*/
+      remove(root, root, input3, newptr);
     }
     else if (strcmp(input, "QUIT") == 0) {//Returns false
       playing = false;//Exits while Loop stopping game
@@ -300,46 +301,101 @@ void display(Node* curr, int depth) {//Displays the heap using tabs
   }
 }
 
-//Remove function from binary tree
-/*void remove(Node* curr, int num, Node* newptr) {
-  if (search(curr, num, newptr) == true) {
-    Node* temp = newptr;
-    cout << temp->data << endl;
-    if (temp->getLeft() == NULL && temp->getRight() == NULL) {
-      if (temp->parent->getLeft() == temp) {
-        temp->parent->left = NULL;
-        delete temp;
-        cout << "here" << endl;
-      }
-      else {
-        temp->parent->right = NULL;
-        delete temp;
-      }
-      newptr = NULL;
+void checkDelete(Node* &root, Node* curr) {
+  if (curr->getLeft() == NULL && curr->getRight() != NULL) {
+    if (curr->color == false && curr->getRight()->color == true) {
+      curr->getRight()->color = false;
+      curr->getRight()->parent = NULL;
     }
-    else if (temp->getLeft() != NULL && temp->getRight() == NULL) {
-      //MAKE THE PARENTS POINTER POINT TO THE CHILD (EASIER)
-      cout << "where" << endl;
-      Node* tempParent = temp->parent;
-      while (temp->getLeft() != NULL) {
-        Node* temptemp = temp;
-        temp = temp->getLeft();
-        delete temptemp;
-      }
-      tempParent->left = temp;
-      newptr = NULL;
-    }
-    else if (temp->getLeft() == NULL && temp->getRight() != NULL) {
-      cout << "there" << endl;
-      Node* tempParent = temp->parent;
-      while (temp->getRight() != NULL) {
-        Node* temptemp = temp;
-        temp = temp->getRight();
-        delete temptemp;
-      }
-      tempParent->right = temp;
-      newptr = NULL;
-    }
-
   }
-  }*/
+  else if (curr->getLeft() != NULL && curr->getRight() == NULL) {
+    if (curr->color == false && curr->getLeft()->color == true) {
+      curr->getLeft()->color = false;
+      curr->getLeft()->parent = NULL;
+    }
+  }
+}
+
+void remove(Node* &root, Node* curr, int num, Node* newptr) {//Removes the number from the binary search tree
+  if (search(curr, num, newptr) == true) {//If the number is in the tree
+    Node* temp = newptr;
+    if (temp == root) {//If thr root is the number to be deleted
+      if (temp->getLeft() == NULL && temp->getRight() == NULL) {//If it is a leaf
+	root = NULL;
+	newptr = NULL;
+      }
+      else if (temp->getLeft() != NULL && temp->getRight() == NULL) {//If it only has a left child
+	checkDelete(root, temp);
+	root = root->getLeft();
+	newptr = NULL;
+      }
+      else if (temp->getLeft() == NULL && temp->getRight() != NULL) {//If it only has a right child
+	checkDelete(root, temp);
+	root = root->getRight();
+	newptr = NULL;
+      }
+      else {//If it has two children
+	Node* newNode = temp->right;
+        while (newNode->left != NULL) {
+          newNode = newNode->left;
+        }
+        temp->data = newNode->data;
+        if (newNode == temp->getRight()) {
+          temp->right = temp->right->right;
+        }
+	newptr = NULL;
+      }
+    }
+    else {
+      if (temp->getLeft() == NULL && temp->getRight() == NULL) {//If the it is a leaf
+	if (temp->parent->getLeft() == temp) {//If temp is a left child of its parents delete it and make its parents left point to null
+	  temp->parent->left = NULL;
+	  delete temp;
+	}
+	else {//If right child
+	  temp->parent->right = NULL;
+	  delete temp;
+	}
+	newptr = NULL;
+      }
+      else if (temp->getLeft() != NULL && temp->getRight() == NULL) {//If temp only has a left child
+	//MAKEs THE PARENTS POINTER POINT TO THE CHILD (EASIER)
+	Node* tempParent = temp->parent;
+	if (tempParent->getLeft() == temp) {//If it is a left child
+	  tempParent->left = temp->getLeft();
+	  temp->getLeft()->parent = tempParent;
+	}
+	else {//If it is a right child
+	  tempParent->right = temp->getLeft();
+	  temp->getLeft()->parent = tempParent;
+	}
+	delete temp;//Deletes temp
+	newptr = NULL;
+      }
+      else if (temp->getLeft() == NULL && temp->getRight() != NULL) {//If temp only has a right child
+	Node* tempParent = temp->parent;
+	if (tempParent->getLeft() == temp) {//If it is a right child
+	  tempParent->left = temp->getRight();
+	  temp->getRight()->parent = tempParent;
+	}
+	else {//If it is a right child
+        tempParent->right = temp->getRight();
+        temp->getRight()->parent = tempParent;
+      }
+	delete temp;
+	newptr = NULL;
+      }
+      else {//If it has two children
+	Node* newNode = temp->right;
+	while (newNode->left != NULL) {
+	  newNode = newNode->left;
+	}
+	temp->data = newNode->data;
+	if (newNode == temp->getRight()) {
+	  temp->right = temp->right->right;
+	}
+      }
+    }
+  }
+}
+    
