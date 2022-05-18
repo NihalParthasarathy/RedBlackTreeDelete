@@ -22,7 +22,7 @@ void display(Node* curr, int depth);
 void addFile(Node* &root, Node* &newptr, int &count);
 void remove(Node* &root, Node* curr, int num, Node* newptr);
 void check(Node* &root, Node* curr);
-void checkDelete(Node* &root, Node* curr);
+void move(Node* &root, Node* curr);
 
 int main() {
   int count = 1;
@@ -301,37 +301,40 @@ void display(Node* curr, int depth) {//Displays the heap using tabs
   }
 }
 
-void checkDelete(Node* &root, Node* curr) {
+void move(Node* &root, Node* curr) {
   if (curr->getLeft() == NULL && curr->getRight() != NULL) {
     if (curr->color == false && curr->getRight()->color == true) {
       curr->getRight()->color = false;
-      curr->getRight()->parent = NULL;
     }
   }
   else if (curr->getLeft() != NULL && curr->getRight() == NULL) {
     if (curr->color == false && curr->getLeft()->color == true) {
       curr->getLeft()->color = false;
-      curr->getLeft()->parent = NULL;
     }
   }
 }
 
+
+
 void remove(Node* &root, Node* curr, int num, Node* newptr) {//Removes the number from the binary search tree
   if (search(curr, num, newptr) == true) {//If the number is in the tree
     Node* temp = newptr;
+    Node* hasBeenDeleted = NULL;
     if (temp == root) {//If thr root is the number to be deleted
       if (temp->getLeft() == NULL && temp->getRight() == NULL) {//If it is a leaf
 	root = NULL;
 	newptr = NULL;
       }
       else if (temp->getLeft() != NULL && temp->getRight() == NULL) {//If it only has a left child
-	checkDelete(root, temp);
+	move(root, temp);
 	root = root->getLeft();
+	root->parent = NULL;
 	newptr = NULL;
       }
       else if (temp->getLeft() == NULL && temp->getRight() != NULL) {//If it only has a right child
-	checkDelete(root, temp);
+	move(root, temp);
 	root = root->getRight();
+	root->parent = NULL;
 	newptr = NULL;
       }
       else {//If it has two children
@@ -362,10 +365,12 @@ void remove(Node* &root, Node* curr, int num, Node* newptr) {//Removes the numbe
 	//MAKEs THE PARENTS POINTER POINT TO THE CHILD (EASIER)
 	Node* tempParent = temp->parent;
 	if (tempParent->getLeft() == temp) {//If it is a left child
+	  move(root, temp);
 	  tempParent->left = temp->getLeft();
 	  temp->getLeft()->parent = tempParent;
 	}
 	else {//If it is a right child
+	  move(root, temp);
 	  tempParent->right = temp->getLeft();
 	  temp->getLeft()->parent = tempParent;
 	}
@@ -375,12 +380,14 @@ void remove(Node* &root, Node* curr, int num, Node* newptr) {//Removes the numbe
       else if (temp->getLeft() == NULL && temp->getRight() != NULL) {//If temp only has a right child
 	Node* tempParent = temp->parent;
 	if (tempParent->getLeft() == temp) {//If it is a right child
+	  move(root, temp);
 	  tempParent->left = temp->getRight();
 	  temp->getRight()->parent = tempParent;
 	}
 	else {//If it is a right child
-        tempParent->right = temp->getRight();
-        temp->getRight()->parent = tempParent;
+	  move(root, temp);
+	  tempParent->right = temp->getRight();
+	  temp->getRight()->parent = tempParent;
       }
 	delete temp;
 	newptr = NULL;
