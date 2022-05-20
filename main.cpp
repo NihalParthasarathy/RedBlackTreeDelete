@@ -23,6 +23,7 @@ void addFile(Node* &root, Node* &newptr, int &count);
 void remove(Node* &root, Node* curr, int num, Node* newptr);
 void check(Node* &root, Node* curr);
 void move(Node* &root, Node* curr);
+void checkDelete(Node* curr, Node* &root);
 
 int main() {
   int count = 1;
@@ -314,6 +315,83 @@ void move(Node* &root, Node* curr) {
   }
 }
 
+void checkDelete(Node* curr, Node* &root) {
+  Node* sibling = NULL;
+  //Node* siblingLeft = NULL;
+  Node* siblingRight = NULL;
+  if (curr == root) {//CASE 1
+    return;
+  }
+  else {
+    Node* parent = curr->parent;
+    if (curr == curr->parent->getRight()) {
+      sibling = curr->parent->getLeft();
+    }
+    else if (curr == curr->parent->getLeft()) {
+      sibling = curr->parent->getRight();
+    }
+
+    //CASE 2
+    if (sibling->color == true && curr == curr->parent->getLeft()) {
+      Node* siblingLeft = sibling->getLeft();
+      sibling->parent = parent->parent;
+      sibling->setLeft(parent);
+      parent->parent = sibling;
+      parent->color = true;
+      sibling->color = false;
+      parent->setLeft(siblingLeft);
+      siblingLeft->parent = parent;
+    }
+    else if (sibling->color == true && curr = curr->parent->getRight()) {
+      Node* siblingRight = sibling->getRight();
+      sibling->parent = parent->parent;
+      sibling->setRight(parent);
+      parent->parent = sibling;
+      parent->color = true;
+      sibling->color = false;
+      parent->setRight(siblingRight);
+      siblingRight->parent = parent;
+    }
+
+    //CASE 3
+    if (sibling->color == false) {
+      sibling->color = true;
+      checkDelete(parent, root);
+    }
+    //CASE 4
+    else if (parent->color == true && sibling->color == false) {
+      if (((sibling->getLeft == NULL || sibling->getLeft()->color == false) && (sibling->getRight == NULL || sibling->getRight->color == false))) {
+	parent->color = false;
+	sibling->color = true;
+      }
+    }
+    //CASE 5
+    else if (parent->getLeft() == sibling && (sibling->getLeft() == NULL || sibling->getLeft()->color == false)) {
+      if (sibling->getRight != NULL) {
+	if (sibling->getRight()->color == true) {
+	  Node* siblingRight = sibling->getRight();
+	  parent->setLeft(siblingRight);
+	  siblingRight->parent = parent;
+	  Node* temp = siblingRight->getLeft();
+	  siblingRight->setLeft(sibling);
+	  sibling->parent = siblingRight;
+	  sibling->setRight(temp);
+	  temp->parent = sibling;
+	  sibling->color = true;
+	  siblingRight->color = false;
+	}
+      }
+    }
+     else if (parent->getRight() == sibling && (sibling->getRight() == NULL || sibling->getRight()->color == false)) {
+      if (sibling->getLeft != NULL) {
+        if (sibling->getLeft()->color == true) {
+	  
+        }
+      }
+    }
+
+  }
+}
 
 
 void remove(Node* &root, Node* curr, int num, Node* newptr) {//Removes the number from the binary search tree
