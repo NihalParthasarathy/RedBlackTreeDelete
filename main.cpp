@@ -316,10 +316,12 @@ void move(Node* &root, Node* curr) {
 }
 
 void checkDelete(Node* curr, Node* &root) {
+  cout << "check delete called" << endl;
   Node* sibling = NULL;
   //Node* siblingLeft = NULL;
   Node* siblingRight = NULL;
   if (curr == root) {//CASE 1
+    cout << "case 1" << endl;
     return;
   }
   else {
@@ -341,8 +343,9 @@ void checkDelete(Node* curr, Node* &root) {
       sibling->color = false;
       parent->setLeft(siblingLeft);
       siblingLeft->parent = parent;
+      cout << "case 2" << endl;
     }
-    else if (sibling->color == true && curr = curr->parent->getRight()) {
+    else if (sibling->color == true && curr == curr->parent->getRight()) {
       Node* siblingRight = sibling->getRight();
       sibling->parent = parent->parent;
       sibling->setRight(parent);
@@ -351,23 +354,26 @@ void checkDelete(Node* curr, Node* &root) {
       sibling->color = false;
       parent->setRight(siblingRight);
       siblingRight->parent = parent;
+      cout << "case 2" << endl;
     }
 
     //CASE 3
     if (sibling->color == false) {
       sibling->color = true;
+      cout << "case 3" << endl;
       checkDelete(parent, root);
     }
     //CASE 4
     else if (parent->color == true && sibling->color == false) {
-      if (((sibling->getLeft == NULL || sibling->getLeft()->color == false) && (sibling->getRight == NULL || sibling->getRight->color == false))) {
+      if (((sibling->getLeft() == NULL || sibling->getLeft()->color == false) && (sibling->getRight() == NULL || sibling->getRight()->color == false))) {
 	parent->color = false;
 	sibling->color = true;
+	cout << "case 4" << endl;
       }
     }
     //CASE 5
     else if (parent->getLeft() == sibling && (sibling->getLeft() == NULL || sibling->getLeft()->color == false)) {
-      if (sibling->getRight != NULL) {
+      if (sibling->getRight() != NULL) {
 	if (sibling->getRight()->color == true) {
 	  Node* siblingRight = sibling->getRight();
 	  parent->setLeft(siblingRight);
@@ -379,17 +385,82 @@ void checkDelete(Node* curr, Node* &root) {
 	  temp->parent = sibling;
 	  sibling->color = true;
 	  siblingRight->color = false;
+	  cout << "case 5" << endl;
 	}
       }
     }
-     else if (parent->getRight() == sibling && (sibling->getRight() == NULL || sibling->getRight()->color == false)) {
-      if (sibling->getLeft != NULL) {
+    else if (parent->getRight() == sibling && (sibling->getRight() == NULL || sibling->getRight()->color == false)) {
+      if (sibling->getLeft() != NULL) {
         if (sibling->getLeft()->color == true) {
-	  
+	  Node* siblingLeft = sibling->getLeft();
+          parent->setRight(siblingLeft);
+          siblingLeft->parent = parent;
+          Node* temp = siblingLeft->getRight();
+          siblingLeft->setRight(sibling);
+          sibling->parent = siblingLeft;
+          sibling->setLeft(temp);
+          temp->parent = sibling;
+          sibling->color = true;
+          siblingLeft->color = false;
+	  cout << "case 5" << endl;
         }
       }
     }
-
+    //CASE 6
+    else if (sibling->color == false && parent->getLeft() == sibling && sibling->getLeft() != NULL) {
+      if (sibling->getLeft()->color == true) {
+	Node* temp = sibling->getRight();
+	sibling->setRight(parent);
+	if (parent->parent != NULL) {
+	  if (parent == parent->parent->getRight()) {
+	    parent->parent->setRight(sibling);
+	    sibling->parent = parent->parent;
+	  }
+	  else {
+	    parent->parent->setLeft(sibling);
+            sibling->parent = parent->parent;
+	  }
+	}
+	else {
+	  sibling->parent = NULL;
+	  root = sibling;
+	}
+	parent->parent = sibling;
+	parent->setLeft(temp);
+	temp->parent = parent;
+	sibling->getLeft()->color = false;
+	sibling->color = parent->color;
+	parent->color = false;
+	cout << "case 6" << endl;
+      }
+    }
+    else if (sibling->color == false && parent->getRight() == sibling && sibling->getLeft() != NULL) {
+      if (sibling->getRight()->color == true) {
+	Node* temp = sibling->getLeft();
+        sibling->setLeft(parent);
+        if (parent->parent != NULL) {
+          if (parent == parent->parent->getRight()) {
+            parent->parent->setRight(sibling);
+            sibling->parent = parent->parent;
+          }
+          else {
+            parent->parent->setLeft(sibling);
+            sibling->parent = parent->parent;
+          }
+        }
+        else {
+          sibling->parent = NULL;
+          root = sibling;
+        }
+	parent->parent = sibling;
+	parent->setRight(temp);
+	temp->parent = parent;
+	sibling->getRight()->color = false;
+	sibling->color = parent->color;
+	parent->color = false;
+	cout << "case 6" << endl;
+      }
+    }
   }
 }
 
@@ -431,7 +502,9 @@ void remove(Node* &root, Node* curr, int num, Node* newptr) {//Removes the numbe
       if (temp->getLeft() == NULL && temp->getRight() == NULL) {//If the it is a leaf
 	if (temp->parent->getLeft() == temp) {//If temp is a left child of its parents delete it and make its parents left point to null
 	  temp->parent->left = NULL;
+
 	  delete temp;
+	  
 	}
 	else {//If right child
 	  temp->parent->right = NULL;
