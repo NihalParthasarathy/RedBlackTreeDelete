@@ -319,44 +319,86 @@ void checkDelete(Node* curr, Node* &root) {
   cout << "check delete called" << endl;
   Node* sibling = NULL;
   //Node* siblingLeft = NULL;
-  Node* siblingRight = NULL;
+  //Node* siblingRight = NULL;
   if (curr == root) {//CASE 1
     cout << "case 1" << endl;
     return;
   }
   else {
+    cout << curr->data << endl;
     Node* parent = curr->parent;
     if (curr == curr->parent->getRight()) {
       sibling = curr->parent->getLeft();
+      cout << "sibling is left" << endl;
     }
     else if (curr == curr->parent->getLeft()) {
       sibling = curr->parent->getRight();
+      cout << "sibling is right" << endl;
     }
-
+    cout << "hello" << endl;
     //CASE 2
     if (sibling->color == true && curr == curr->parent->getLeft()) {
       Node* siblingLeft = sibling->getLeft();
+      display(root, 0);
       sibling->parent = parent->parent;
+      if (parent != root) {
+        if (parent == parent->getLeft()) {
+          parent->parent->setLeft(sibling);
+        }
+        else {
+          parent->parent->setRight(sibling);
+        }
+      }
+      else {
+        root = sibling;
+      }
       sibling->setLeft(parent);
+      cout << "break" << endl;
       parent->parent = sibling;
       parent->color = true;
       sibling->color = false;
-      parent->setLeft(siblingLeft);
-      siblingLeft->parent = parent;
+      parent->setRight(siblingLeft);
+      if (siblingLeft != NULL) {
+        siblingLeft->parent = parent;
+      }
+      display(root, 0);
+      Node* temporary = sibling;
+      sibling = sibling->getLeft();
+      parent = temporary;
       cout << "case 2" << endl;
     }
     else if (sibling->color == true && curr == curr->parent->getRight()) {
       Node* siblingRight = sibling->getRight();
+      display(root, 0);
       sibling->parent = parent->parent;
+      if (parent != root) {
+	if (parent == parent->getLeft()) {
+	  parent->parent->setLeft(sibling);
+	}
+	else {
+	  parent->parent->setRight(sibling);
+	}
+      }
+      else {
+	root = sibling;
+      }
       sibling->setRight(parent);
+      cout << "break" << endl;
       parent->parent = sibling;
       parent->color = true;
       sibling->color = false;
-      parent->setRight(siblingRight);
-      siblingRight->parent = parent;
+      parent->setLeft(siblingRight);
+      if (siblingRight != NULL) {
+	siblingRight->parent = parent;
+      }
+      display(root, 0);
+      Node* temporary = sibling;
+      sibling = sibling->getRight();
+      parent = temporary;
       cout << "case 2" << endl;
     }
 
+    
     //CASE 3
     if (sibling->color == false) {
       sibling->color = true;
@@ -468,23 +510,24 @@ void checkDelete(Node* curr, Node* &root) {
 void remove(Node* &root, Node* curr, int num, Node* newptr) {//Removes the number from the binary search tree
   if (search(curr, num, newptr) == true) {//If the number is in the tree
     Node* temp = newptr;
-    Node* hasBeenDeleted = NULL;
+    Node* newPos = NULL;
+    Node* x = NULL;
     if (temp == root) {//If thr root is the number to be deleted
       if (temp->getLeft() == NULL && temp->getRight() == NULL) {//If it is a leaf
 	root = NULL;
 	newptr = NULL;
       }
       else if (temp->getLeft() != NULL && temp->getRight() == NULL) {//If it only has a left child
-	move(root, temp);
 	root = root->getLeft();
 	root->parent = NULL;
 	newptr = NULL;
+	newPos = root;
       }
       else if (temp->getLeft() == NULL && temp->getRight() != NULL) {//If it only has a right child
-	move(root, temp);
 	root = root->getRight();
 	root->parent = NULL;
 	newptr = NULL;
+	newPos = root;
       }
       else {//If it has two children
 	Node* newNode = temp->right;
@@ -492,55 +535,138 @@ void remove(Node* &root, Node* curr, int num, Node* newptr) {//Removes the numbe
           newNode = newNode->left;
         }
         temp->data = newNode->data;
+	checkDelete(newNode, root);
         if (newNode == temp->getRight()) {
           temp->right = temp->right->right;
+	  //temp->right->right->parent = temp;
         }
+	/*else {
+	  newNode->parent->setLeft(newNode->getRight());
+	  if (newNode->getRight() != NULL) {
+	    newNode->getRight()->parent = newNode->parent;
+	  }
+	  }*/
+	else if(newNode->getRight() != NULL){
+	  newNode->parent->left = newNode->right;
+	  if(newNode->parent->color){
+	    newNode->right->color = false;
+	  }
+	}
+	if (newNode->parent->left == newNode) {
+	  newNode->parent->left = NULL;
+	}
 	newptr = NULL;
+	newPos = root;
       }
     }
     else {
       if (temp->getLeft() == NULL && temp->getRight() == NULL) {//If the it is a leaf
-	if (temp->parent->getLeft() == temp) {//If temp is a left child of its parents delete it and make its parents left point to null
+	/*if (temp->parent->getLeft() == temp) {//If temp is a left child of its parents delete it and make its parents left point to null
 	  temp->parent->left = NULL;
-
 	  delete temp;
-	  
 	}
 	else {//If right child
 	  temp->parent->right = NULL;
 	  delete temp;
+	  }*/
+	if (temp->color == true) {
+	  if (temp->parent->getLeft() == temp) {
+	    temp->parent->setLeft(NULL);
+	    delete temp;
+	  }
+	  else {
+	    temp->parent->setRight(NULL);
+	    delete temp;
+	  }
+	  return;
+	}
+	if (temp->parent->getLeft() == temp) {
+	  checkDelete(temp, root);
+	  temp->parent->setLeft(NULL);
+	}
+	else {
+	  checkDelete(temp, root);
+	  temp->parent->setRight(NULL);
 	}
 	newptr = NULL;
       }
       else if (temp->getLeft() != NULL && temp->getRight() == NULL) {//If temp only has a left child
 	//MAKEs THE PARENTS POINTER POINT TO THE CHILD (EASIER)
 	Node* tempParent = temp->parent;
-	if (tempParent->getLeft() == temp) {//If it is a left child
-	  move(root, temp);
+	if (tempParent->getLeft() == temp) {
+	  if (temp->left->color == !temp->color) {
+	    delete temp;
+	    tempParent->setLeft(temp->left);
+	    if (temp->left->color) {
+	      temp->color = false;
+	    }
+	    return;
+	  }
+	  tempParent->setLeft(temp->left);
+	  checkDelete(temp, root);
+	}
+	else {
+	  if (temp->left->color == !temp->color) {
+	    delete temp;
+	    tempParent->right = temp->left;
+	    if (temp->left->color) {
+	      temp->color = false;
+	    }
+	    return;
+	  }
+	  tempParent->right = temp->left;
+	  checkDelete(temp, root);
+	}
+	/*if (tempParent->getLeft() == temp) {//If it is a left child
+	  //move(root, temp);
 	  tempParent->left = temp->getLeft();
 	  temp->getLeft()->parent = tempParent;
 	}
 	else {//If it is a right child
-	  move(root, temp);
+	  //move(root, temp);
 	  tempParent->right = temp->getLeft();
 	  temp->getLeft()->parent = tempParent;
 	}
-	delete temp;//Deletes temp
+	delete temp;//Deletes temp*/
 	newptr = NULL;
       }
       else if (temp->getLeft() == NULL && temp->getRight() != NULL) {//If temp only has a right child
 	Node* tempParent = temp->parent;
-	if (tempParent->getLeft() == temp) {//If it is a right child
-	  move(root, temp);
+	/*if (tempParent->getLeft() == temp) {//If it is a right child
+	  //move(root, temp);
 	  tempParent->left = temp->getRight();
 	  temp->getRight()->parent = tempParent;
 	}
 	else {//If it is a right child
-	  move(root, temp);
+	  //move(root, temp);
 	  tempParent->right = temp->getRight();
 	  temp->getRight()->parent = tempParent;
       }
-	delete temp;
+      delete temp;*/
+	if (tempParent->getRight() == temp) {
+          if (temp->right->color == !temp->color) {
+            delete temp;
+            tempParent->setRight(temp->right);
+            if (temp->left->color) {
+              temp->color = false;
+            }
+            return;
+          }
+          tempParent->setRight(temp->right);
+          checkDelete(temp, root);
+        }
+        else {
+          if (temp->right->color == !temp->color) {
+            delete temp;
+            tempParent->left = temp->right;
+            if (temp->right->color) {
+              temp->color = false;
+            }
+            return;
+          }
+          tempParent->left = temp->right;
+          checkDelete(temp, root);
+        }
 	newptr = NULL;
       }
       else {//If it has two children
@@ -549,8 +675,12 @@ void remove(Node* &root, Node* curr, int num, Node* newptr) {//Removes the numbe
 	  newNode = newNode->left;
 	}
 	temp->data = newNode->data;
+	checkDelete(newNode, root);
 	if (newNode == temp->getRight()) {
 	  temp->right = temp->right->right;
+	}
+	if (newNode->parent->getLeft() == newNode) {
+	  newNode->parent->setLeft(NULL);
 	}
       }
     }
