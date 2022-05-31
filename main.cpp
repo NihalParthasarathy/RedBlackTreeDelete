@@ -45,7 +45,12 @@ r quit(QUIT)" << endl;
       manualAdd(root, newptr);
     }
     else if (strcmp(input, "DISPLAY") == 0) {//Calls display function
-      display(root, 0);
+	if (root != NULL) {
+            display(root, 0);
+	}
+	else {
+	   cout << "tree is empty" << endl;	
+	}
     }
     else if (strcmp(input, "SEARCH") == 0) {//Calls the search function
       cout << "What number would you like to search" << endl;
@@ -334,7 +339,6 @@ void checkDelete(Node* curr, Node* &root) {//Check delete function which has cas
       //CASE 2
       if (sibling->color == true && curr == curr->parent->getLeft() && curr->color == false && parent->color == false) {//Rotates the sibling through the parent
 	Node* siblingLeft = sibling->getLeft();
-	display(root, 0);
 	sibling->parent = parent->parent;
 	if (parent != root) {
 	  if (parent == parent->getLeft()) {
