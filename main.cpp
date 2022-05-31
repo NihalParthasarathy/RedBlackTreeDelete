@@ -318,6 +318,7 @@ void move(Node* &root, Node* curr) {
 void checkDelete(Node* curr, Node* &root) {//Check delete function which has cases for double blacks
   Node* sibling = NULL;
   if (curr == root) {//CASE 1
+    cout << "case 1" << endl;
     return;
   }
   else {
@@ -329,164 +330,166 @@ void checkDelete(Node* curr, Node* &root) {//Check delete function which has cas
     else if (curr == curr->parent->getLeft()) {
       sibling = curr->parent->getRight();
     }
-    //CASE 2
-    if (sibling->color == true && curr == curr->parent->getLeft() && curr->color == false && parent->color == false) {//Rotates the sibling through the parent
-      Node* siblingLeft = sibling->getLeft();
-      display(root, 0);
-      sibling->parent = parent->parent;
-      if (parent != root) {
-        if (parent == parent->getLeft()) {
+    if (sibling != NULL) {
+      //CASE 2
+      if (sibling->color == true && curr == curr->parent->getLeft() && curr->color == false && parent->color == false) {//Rotates the sibling through the parent
+	Node* siblingLeft = sibling->getLeft();
+	display(root, 0);
+	sibling->parent = parent->parent;
+	if (parent != root) {
+	  if (parent == parent->getLeft()) {
           parent->parent->setLeft(sibling);
-        }
-        else {
-          parent->parent->setRight(sibling);
-        }
-      }
-      else {
-        root = sibling;
-      }
-      sibling->setLeft(parent);
-      parent->parent = sibling;
-      parent->color = true;//changes colors
-      sibling->color = false;
-      parent->setRight(siblingLeft);
-      if (siblingLeft != NULL) {
-        siblingLeft->parent = parent;
-      }
-      sibling = parent->getRight();//Resets sibling
-    }
-    else if (sibling->color == true && curr == curr->parent->getRight() && curr->color == false && parent->color == false) {//Rotates sibling through parent
-      Node* siblingRight = sibling->getRight();
-      sibling->parent = parent->parent;
-      if (parent != root) {
-	if (parent == parent->getLeft()) {
-	  parent->parent->setLeft(sibling);
-	}
-	else {
-	  parent->parent->setRight(sibling);
-	}
-      }
-      else {
-	root = sibling;
-      }
-      sibling->setRight(parent);
-      parent->parent = sibling;
-      parent->color = true;//Changes colors
-      sibling->color = false;
-      parent->setLeft(siblingRight);
-      if (siblingRight != NULL) {
-	siblingRight->parent = parent;
-      }
-      Node* temporary = sibling;
-      sibling = parent->getLeft();//Resets sibling
-    }
-
-    
-    //CASE 3
-    if (sibling->color == false && curr->color == false && parent->color == false && (sibling->getLeft() == NULL || sibling->getLeft()->color == false) && (sibling->getRight() == NULL || sibling->getRight()->color == false)) {//Sets siblings color to red then recurcive call on parent
-      sibling->color = true;
-      checkDelete(parent, root);
-    }
-    //CASE 4
-    else if (parent->color == true && sibling->color == false && (sibling->getLeft() == NULL || sibling->getLeft()->color == false) && (sibling->getRight() == NULL || sibling->getRight()->color == false)) {//Sets parent to black and sibling to red
-      parent->color = false;
-      sibling->color = true;
-      return;
-    }
-    //CASE 5
-    else if (parent->getLeft() == sibling && (sibling->getLeft() == NULL || sibling->getLeft()->color == false)) {//Rotates through sibling
-      if (sibling->getRight() != NULL) {
-	if (sibling->getRight()->color == true) {//If siblings right is red
-	  Node* siblingRight = sibling->getRight();//Rotates trhough sibling
-	  parent->setLeft(siblingRight);
-	  siblingRight->parent = parent;
-	  Node* temp = siblingRight->getLeft();
-	  siblingRight->setLeft(sibling);
-	  sibling->parent = siblingRight;
-	  sibling->setRight(temp);
-	  temp->parent = sibling;
-	  sibling->color = true;//Sets colors
-	  siblingRight->color = false;
-	  sibling = siblingRight;//Resets sibling
-	}
-      }
-    }
-    else if (parent->getRight() == sibling && (sibling->getRight() == NULL || sibling->getRight()->color == false)) {
-      if (sibling->getLeft() != NULL) {
-        if (sibling->getLeft()->color == true) {
-	  Node* siblingLeft = sibling->getLeft();//Rotates through sibling
-          parent->setRight(siblingLeft);
-          siblingLeft->parent = parent;
-          Node* temp = siblingLeft->getRight();
-          siblingLeft->setRight(sibling);
-          sibling->parent = siblingLeft;
-          sibling->setLeft(temp);
-          temp->parent = sibling;
-          sibling->color = true;//Sets colors
-          siblingLeft->color = false;
-	  sibling = siblingLeft;//Resets sibling
-        }
-      }
-    }
-    //CASE 6
-    if (sibling->color == false && parent->getLeft() == sibling && sibling->getLeft() != NULL && curr->color == false) {//Rotates through parent and switchs parent and siblings colors
-      if (sibling->getLeft()->color == true) {
-	Node* temp = sibling->getRight();
-	sibling->setRight(parent);
-	if (parent->parent != NULL) {//Checks if parent is NULL
-	  if (parent == parent->parent->getRight()) {
-	    parent->parent->setRight(sibling);
-	    sibling->parent = parent->parent;
 	  }
 	  else {
+	    parent->parent->setRight(sibling);
+	  }
+      }
+	else {
+	  root = sibling;
+	}
+	sibling->setLeft(parent);
+	parent->parent = sibling;
+	parent->color = true;//changes colors
+	sibling->color = false;
+	parent->setRight(siblingLeft);
+	if (siblingLeft != NULL) {
+	  siblingLeft->parent = parent;
+	}
+	sibling = parent->getRight();//Resets sibling
+      }
+      else if (sibling->color == true && curr == curr->parent->getRight() && curr->color == false && parent->color == false) {//Rotates sibling through parent
+	Node* siblingRight = sibling->getRight();
+	sibling->parent = parent->parent;
+	if (parent != root) {
+	  if (parent == parent->getLeft()) {
 	    parent->parent->setLeft(sibling);
-            sibling->parent = parent->parent;
+	  }
+	  else {
+	    parent->parent->setRight(sibling);
 	  }
 	}
 	else {
-	  sibling->parent = NULL;
 	  root = sibling;
 	}
+	sibling->setRight(parent);
 	parent->parent = sibling;
-	parent->setLeft(temp);
-	if (temp != NULL) {
-	  temp->parent = parent;
+	parent->color = true;//Changes colors
+	sibling->color = false;
+	parent->setLeft(siblingRight);
+	if (siblingRight != NULL) {
+	  siblingRight->parent = parent;
 	}
-	//Sets colors
-	sibling->getLeft()->color = false;
-	sibling->color = parent->color;
+	Node* temporary = sibling;
+	sibling = parent->getLeft();//Resets sibling
+      }
+      
+    
+      //CASE 3
+      if (sibling->color == false && curr->color == false && parent->color == false && (sibling->getLeft() == NULL || sibling->getLeft()->color == false) && (sibling->getRight() == NULL || sibling->getRight()->color == false)) {//Sets siblings color to red then recurcive call on parent
+	sibling->color = true;
+	checkDelete(parent, root);
+      }
+      //CASE 4
+      else if (parent->color == true && sibling->color == false && (sibling->getLeft() == NULL || sibling->getLeft()->color == false) && (sibling->getRight() == NULL || sibling->getRight()->color == false)) {//Sets parent to black and sibling to red
 	parent->color = false;
+	sibling->color = true;
 	return;
       }
-    }
-    else if (sibling->color == false && parent->getRight() == sibling && sibling->getRight() != NULL && curr->color == false) {
-      if (sibling->getRight()->color == true) {
-	Node* temp = sibling->getLeft();
-        sibling->setLeft(parent);
-        if (parent->parent != NULL) {
-          if (parent == parent->parent->getRight()) {
-            parent->parent->setRight(sibling);
-            sibling->parent = parent->parent;
-          }
-          else {
-            parent->parent->setLeft(sibling);
-            sibling->parent = parent->parent;
-          }
-        }
-        else {
-          sibling->parent = NULL;
-          root = sibling;
-        }
-	parent->parent = sibling;
-	parent->setRight(temp);
-	if (temp != NULL) {
-	  temp->parent = parent;
+      //CASE 5
+      else if (parent->getLeft() == sibling && (sibling->getLeft() == NULL || sibling->getLeft()->color == false)) {//Rotates through sibling
+	if (sibling->getRight() != NULL) {
+	  if (sibling->getRight()->color == true) {//If siblings right is red
+	    Node* siblingRight = sibling->getRight();//Rotates trhough sibling
+	    parent->setLeft(siblingRight);
+	    siblingRight->parent = parent;
+	    Node* temp = siblingRight->getLeft();
+	    siblingRight->setLeft(sibling);
+	    sibling->parent = siblingRight;
+	    sibling->setRight(temp);
+	    temp->parent = sibling;
+	    sibling->color = true;//Sets colors
+	    siblingRight->color = false;
+	    sibling = siblingRight;//Resets sibling
+	  }
 	}
-	//Sets colors
-	sibling->getRight()->color = false;
-	sibling->color = parent->color;
-	parent->color = false;
-	return;
+      }
+      else if (parent->getRight() == sibling && (sibling->getRight() == NULL || sibling->getRight()->color == false)) {
+	if (sibling->getLeft() != NULL) {
+	  if (sibling->getLeft()->color == true) {
+	    Node* siblingLeft = sibling->getLeft();//Rotates through sibling
+	    parent->setRight(siblingLeft);
+	    siblingLeft->parent = parent;
+	    Node* temp = siblingLeft->getRight();
+	    siblingLeft->setRight(sibling);
+	    sibling->parent = siblingLeft;
+	    sibling->setLeft(temp);
+	    temp->parent = sibling;
+	    sibling->color = true;//Sets colors
+	    siblingLeft->color = false;
+	    sibling = siblingLeft;//Resets sibling
+	  }
+	}
+      }
+      //CASE 6
+      if (sibling->color == false && parent->getLeft() == sibling && sibling->getLeft() != NULL && curr->color == false) {//Rotates through parent and switchs parent and siblings colors
+	if (sibling->getLeft()->color == true) {
+	  Node* temp = sibling->getRight();
+	  sibling->setRight(parent);
+	  if (parent->parent != NULL) {//Checks if parent is NULL
+	    if (parent == parent->parent->getRight()) {
+	      parent->parent->setRight(sibling);
+	      sibling->parent = parent->parent;
+	    }
+	    else {
+	      parent->parent->setLeft(sibling);
+	      sibling->parent = parent->parent;
+	    }
+	  }
+	  else {
+	    sibling->parent = NULL;
+	    root = sibling;
+	  }
+	  parent->parent = sibling;
+	  parent->setLeft(temp);
+	  if (temp != NULL) {
+	    temp->parent = parent;
+	  }
+	  //Sets colors
+	  sibling->getLeft()->color = false;
+	  sibling->color = parent->color;
+	  parent->color = false;
+	  return;
+	}
+      }
+      else if (sibling->color == false && parent->getRight() == sibling && sibling->getRight() != NULL && curr->color == false) {
+	if (sibling->getRight()->color == true) {
+	  Node* temp = sibling->getLeft();
+	  sibling->setLeft(parent);
+	  if (parent->parent != NULL) {
+	    if (parent == parent->parent->getRight()) {
+	      parent->parent->setRight(sibling);
+	      sibling->parent = parent->parent;
+	    }
+	    else {
+	      parent->parent->setLeft(sibling);
+	      sibling->parent = parent->parent;
+	    }
+	  }
+	  else {
+	    sibling->parent = NULL;
+	    root = sibling;
+	  }
+	  parent->parent = sibling;
+	  parent->setRight(temp);
+	  if (temp != NULL) {
+	    temp->parent = parent;
+	  }
+	  //Sets colors
+	  sibling->getRight()->color = false;
+	  sibling->color = parent->color;
+	  parent->color = false;
+	  return;
+	}
       }
     }
   }
@@ -527,6 +530,7 @@ void remove(Node* &root, Node* curr, int num, Node* newptr) {//Removes the numbe
         }
 	else if(newNode->getRight() != NULL){
 	  newNode->parent->left = newNode->right;
+	  newNode->right->parent = newNode->parent;
 	  if(newNode->parent->color){
 	    newNode->right->color = false;
 	  }
